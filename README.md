@@ -1,15 +1,13 @@
 <!-- @format -->
 
-# TypeScript Template
-
-This repository is a template for developing TypeScript-based projects.
+# Interpolator
 
 ## Getting Started
 
 1. **Clone this repository:**
 
     ```bash
-    git clone https://github.com/koji014/ts-template.git your-project-name
+    git clone https://github.com/koji014/interpolator.git your-project-name
     cd your-project-name
     ```
 
