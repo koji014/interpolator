@@ -2,7 +2,11 @@
 
 # Interpolator
 
-## Getting Started
+## ~ Demo ~
+
+-   https://koji014-interpolator.vercel.app/
+
+## ~ Getting Started ~
 
 1. **Clone this repository:**
 
@@ -21,3 +25,7 @@
     ```bash
     npm run dev
     ```
+
+## ~ References ~
+
+-   https://easings.net/ja
