@@ -10,14 +10,14 @@
  */
 export class Interpolator {
     private interpolationParams: InterpolationParams[];
-    isAnimating: boolean;
+    isRunning: boolean;
 
     /**
      * @constructor
      */
     constructor() {
         this.interpolationParams = [];
-        this.isAnimating = false;
+        this.isRunning = false;
     }
 
     /**
@@ -28,19 +28,18 @@ export class Interpolator {
      * @param {function} callback - コールバック関数
      */
     registerInterpolation(start: number, end: number, callback: InterpolationCallback, easing: (x: number) => number = Interpolator.getEasingFunction('linear')) {
-        this.interpolationParams.push({ start, end, callback, easing });
+        const props = {
+            isAnimationFinished: false,
+        };
+        this.interpolationParams.push({ start, end, callback, easing, props });
     }
 
     /**
      * # registerInterpolation で全ての登録が終了後に一度実行する処理
      */
     initInterpolation(progress: number) {
-        for (const { start, end, easing, callback } of this.interpolationParams) {
-            if (progress >= start) {
-                const sp = Interpolator.scaledProgress(progress, start, end);
-                callback(easing(sp));
-            }
-        }
+        this.update(progress);
+        this.isRunning = false;
     }
 
     /**
@@ -54,14 +53,16 @@ export class Interpolator {
      * # rAF で実行する更新処理
      */
     update(progress: number) {
-        for (const { start, end, easing, callback } of this.interpolationParams) {
+        for (const { start, end, easing, callback, props } of this.interpolationParams) {
             if (progress >= start && progress <= end) {
-                this.isAnimating = true;
+                this.isRunning = true;
+                props.isAnimationFinished = false;
                 const sp = Interpolator.scaledProgress(progress, start, end);
-                callback(easing(sp));
-            } else {
-                this.isAnimating = false;
-                callback(easing(1));
+                callback(easing(sp), true);
+            } else if (!props.isAnimationFinished && progress > end) {
+                this.isRunning = false;
+                props.isAnimationFinished = true;
+                callback(easing(1), false);
             }
         }
     }
@@ -187,13 +188,14 @@ export class Interpolator {
 /**
  * ######### 型 ###########
  */
-type InterpolationCallback = (scaledProgress: number) => void;
+type InterpolationCallback = (scaledProgress: number, isAnimating: boolean) => void;
 
 interface InterpolationParams {
     start: number;
     end: number;
     callback: InterpolationCallback;
     easing: (x: number) => number;
+    props: Record<string, unknown>;
 }
 
 type EasingFunction =

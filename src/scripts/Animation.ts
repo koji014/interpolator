@@ -48,11 +48,11 @@ export default class Animation {
      * # rAF で実行する更新処理
      */
     update() {
-        console.log('called')
+        console.log('running')
         this.updateTime();
         this.interpolator.update(this.time);
 
-        if (this.interpolator.isAnimating) {
+        if (this.interpolator.isRunning) {
             requestAnimationFrame(this.update);
         }
     }
@@ -72,12 +72,29 @@ export default class Animation {
         this.interpolator.registerInterpolation(
             0,
             this.duration,
-            (pr) => {
+            (pr, isAnimating) => {
                 const transform = {
                     x: `translateX(${Interpolator.lerp(0, 400, pr)}px)`,
                     rotate: `rotate(${Interpolator.lerp(0, 360, pr)}deg)`,
                 };
                 this.target.style.transform = `${transform.x} ${transform.rotate}`;
+
+                !isAnimating && console.log('animation 1 finished')
+            },
+            Interpolator.getEasingFunction('easeOutBounce')
+        );
+
+        this.interpolator.registerInterpolation(
+            this.duration,
+            this.duration * 2,
+            (pr, isAnimating) => {
+                const transform = {
+                    x: `translateX(${Interpolator.lerp(400, 0, pr)}px)`,
+                    rotate: `rotate(${Interpolator.lerp(360, 0, pr)}deg)`,
+                };
+                this.target.style.transform = `${transform.x} ${transform.rotate}`;
+
+                !isAnimating && console.log('animation 2 finished')
             },
             Interpolator.getEasingFunction('easeOutBounce')
         );
